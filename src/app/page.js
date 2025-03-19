@@ -22,6 +22,7 @@ export default function Home() {
 
     <main>
     <h1>Upload Photo</h1>
+    <p>{message}</p>
     <form action="/upload" method="post" enctype="multipart/form-data">
         <label for="name">Name:</label>
         <input type="text" id="name" name="name" required/><br/><br/>
