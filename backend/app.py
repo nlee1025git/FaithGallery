@@ -8,7 +8,7 @@ CORS(app)  # Allow all origins (fine for local testing)
 
 @app.route('/api')
 def api():
-    return {"message": "Hello from API!"}
+    return {"message": "Hello from Backend!"}
 
 def get_db_connection():
     conn = mysql.connector.connect(
