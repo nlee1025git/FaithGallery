@@ -6,6 +6,7 @@ export default function Home() {
 
   useEffect(() => {
     fetch('/api')  // Relative URL, should resolve to https://myaddress.com/api
+      //fetch('http://localhost:3001/api')
       .then((response) => response.json())
       .then((data) => setMessage(data.message))
       .catch((error) => {
