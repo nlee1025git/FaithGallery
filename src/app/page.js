@@ -17,7 +17,7 @@ export default function Home() {
   return (
     <div>
     <head>
-      <title>Upload Photo</title>
+      <title>Upload Photos</title>
     </head>
 
     <main>
