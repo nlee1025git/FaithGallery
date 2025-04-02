@@ -1,23 +1,28 @@
-from flask import Flask
+from flask import Flask, request, jsonify, render_template
 from flask_cors import CORS
 import mysql.connector
 import os
 
-app = Flask(__name__)
-CORS(app)  # Allow all origins (fine for local testing)
+app = Flask(__name__) # run the Flask app, create a new Flask web application
+CORS(app) # restricts requests from different domains
+
+UPLOAD_FOLDER = 'uploads' # save the copy of the upload file to this directory
+if not os.path.exists(UPLOAD_FOLDER):
+    os.makedirs(UPLOAD_FOLDER)
+
+# connect to the MySQL database
+def get_db_connection():
+    conn = mysql.connector.connect(
+        host='localhost',
+        user='root',
+        password='mysql123',
+        database='odpc'
+    )
+    return conn
 
 @app.route('/api')
 def api():
     return {"message": "Hello from Backend!"}
-
-def get_db_connection():
-    conn = mysql.connector.connect(
-        host='host',
-        user='username',
-        password='password',
-        database='database'
-    )
-    return conn
 
 @app.route('/')
 def index():
@@ -25,56 +30,40 @@ def index():
 
 @app.route('/upload', methods=['POST'])
 def upload_photo():
-    if 'file' not in request.files:
-        return 'No file part', 400
-    file = request.files['file']
-    name = request.form['name']
-    
-    if file and name:
+    try:
+        if 'file' not in request.files:
+            return jsonify({'error': 'No file part'}), 400
+        file = request.files['file']
+        name = request.form['name']
+
+        if not file or not name:
+            return jsonify({'error': 'Missing file or name'}), 400
+
+        # log the file name and name field for debugging
+        print(f"Received name: {name}")
+        print(f"Received file: {file.filename}")
+
+        # connect to the database and insert data
         conn = get_db_connection()
         cursor = conn.cursor()
-        
-        photo_data = file.read()
+
+        file_path = os.path.join(UPLOAD_FOLDER, file.filename)
+        file.save(file_path)  # save the file in the 'uploads' directory
+
+        with open(file_path, 'rb') as f:
+            photo_data = f.read() # read the file's binary data
+
         cursor.execute('INSERT INTO photos (name, photo) VALUES (%s, %s)', (name, photo_data))
         conn.commit()
         cursor.close()
         conn.close()
-        
-        return 'File uploaded successfully', 200
 
-@app.route('/search', methods=['GET'])
-def search_photo():
-    name = request.args.get('name')
-    if not name:
-        return 'Name parameter is required', 400
-    
-    conn = get_db_connection()
-    cursor = conn.cursor()
-    
-    cursor.execute('SELECT id, name FROM photos WHERE name LIKE %s', ('%' + name + '%',))
-    photos = cursor.fetchall()
-    
-    cursor.close()
-    conn.close()
-    
-    return render_template('search_results.html', photos=photos)
+        # return success response
+        return jsonify({'message': 'File uploaded successfully'}), 200
 
-@app.route('/view/<int:photo_id>', methods=['GET'])
-def view_photo(photo_id):
-    conn = get_db_connection()
-    cursor = conn.cursor()
-    
-    cursor.execute('SELECT name, photo FROM photos WHERE id = %s', (photo_id,))
-    photo = cursor.fetchone()
-    
-    cursor.close()
-    conn.close()
-    
-    if photo:
-        return send_file(photo[1], mimetype='image/jpeg', as_attachment=False, download_name=photo[0])
-    else:
-        return 'Photo not found', 404
+    except Exception as e:
+        print(f"Error: {e}")  # log the exception for debugging
+        return jsonify({'error': 'An error occurred during file upload'}), 500
 
-
-if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=3001)
+if __name__ == '__main__':
+    app.run(debug=True, port=3001)  # run on port 3001
