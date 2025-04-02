@@ -1,4 +1,4 @@
-from flask import Flask, request, jsonify, render_template
+from flask import Flask, request, jsonify, render_template, redirect, url_for
 from flask_cors import CORS
 import mysql.connector
 import os
@@ -59,6 +59,7 @@ def upload_photo():
         conn.close()
 
         # return success response
+        return redirect(url_for('index'))
         return jsonify({'message': 'File uploaded successfully'}), 200
 
     except Exception as e:
