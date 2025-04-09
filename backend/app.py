@@ -15,7 +15,7 @@ def get_db_connection():
     conn = mysql.connector.connect(
         host='localhost',
         user='root',
-        password='mysql123',
+        password='',
         database='odpc'
     )
     return conn
@@ -24,9 +24,6 @@ def get_db_connection():
 def api():
     return {"message": "Hello from Backend!"}
 
-@app.route('/')
-def index():
-    return render_template('index.html')
 
 @app.route('/upload', methods=['POST'])
 def upload_photo():
@@ -59,12 +56,11 @@ def upload_photo():
         conn.close()
 
         # return success response
-        return redirect(url_for('index'))
-        return jsonify({'message': 'File uploaded successfully'}), 200
-
+        return {"message": 'File uploaded successfully'}
+    
     except Exception as e:
         print(f"Error: {e}")  # log the exception for debugging
-        return jsonify({'error': 'An error occurred during file upload'}), 500
+        return {"message": 'An error occurred during file upload'}
 
 if __name__ == '__main__':
     app.run(debug=True, port=3001)  # run on port 3001

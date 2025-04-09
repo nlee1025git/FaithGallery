@@ -6,8 +6,9 @@ export default function Home() {
   const [uploadMessage, setUploadMessage] = useState('');
 
   useEffect(() => {
-    fetch('http://localhost:3001/api')  // Corrected to the correct backend port
-      .then((response) => response.json())
+    //fetch('http://localhost:3001/api')  // Corrected to the correct backend port
+    fetch('/api')
+    .then((response) => response.json())
       .then((data) => setMessage(data.message))
       .catch((error) => {
         console.error('Fetch error:', error);
@@ -21,7 +22,9 @@ export default function Home() {
     const formData = new FormData(event.target); // Collect form data
 
     // Send the form data to the Flask backend asynchronously
-    fetch('http://localhost:3001/upload', {  // Corrected to the correct backend port
+    fetch('/upload', { 
+    //fetch('http://localhost:3001/upload', {  // Corrected to the correct backend port
+
       method: 'POST',
       body: formData
     })
