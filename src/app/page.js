@@ -55,7 +55,7 @@ export default function Home() {
       </head>
 
       <main>
-        <h1>Upload Photo?</h1>
+        <h1>Upload Photo</h1>
         <p>{message}</p>
 
         {/* Form for file upload */}
