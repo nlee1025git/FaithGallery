@@ -1,7 +1,10 @@
 from flask import Flask, request, jsonify, render_template, redirect, url_for
 from flask_cors import CORS
+from PIL import Image
 import mysql.connector
 import os
+import io
+import base64
 
 app = Flask(__name__) # run the Flask app, create a new Flask web application
 CORS(app) # restricts requests from different domains
@@ -15,7 +18,7 @@ def get_db_connection():
     conn = mysql.connector.connect(
         host='localhost',
         user='root',
-        password='',
+        password='mysql123',
         database='odpc'
     )
     return conn
@@ -24,6 +27,44 @@ def get_db_connection():
 def api():
     return {"message": "Hello from Backend!"}
 
+@app.route('/')
+def index():
+    return render_template('index.html')
+
+@app.route('/search')
+def search():
+    name = request.args.get('name')
+    
+    try:
+        conn = get_db_connection()
+        cursor = conn.cursor()
+
+        cursor.execute('select * from person where name = %s', (name,))
+        name_exists = cursor.fetchone()
+
+        if name_exists:
+            cursor.execute('select * from photo where person_id = %s', (name_exists[0],))
+            photos = cursor.fetchall()
+            
+            image_data = []
+            for photo in photos[-1: -4: -1]:
+                binary_data = photo[2]
+                try:
+                    image = Image.open(io.BytesIO(binary_data))
+                    image_format = image.format.lower()  # file extension 
+                    encoded_img = base64.b64encode(binary_data).decode('utf-8')
+                    image_data.append({'type': image_format, 'data': encoded_img})
+                except Exception as e:
+                    return jsonify({'error': 'An error occurred during file open'}), 500
+
+            cursor.close()
+            conn.close()
+
+            return render_template('search.html', images=image_data, name=name)
+        else:
+            return render_template('index.html', message=f'Name: {name} not found.')
+    except Exception as e:
+        return jsonify({'Error': 'An error occurred during file open'}), 500
 
 @app.route('/upload', methods=['POST'])
 def upload_photo():
@@ -50,17 +91,23 @@ def upload_photo():
         with open(file_path, 'rb') as f:
             photo_data = f.read() # read the file's binary data
 
-        cursor.execute('INSERT INTO photos (name, photo) VALUES (%s, %s)', (name, photo_data))
+        cursor.execute('select id from person where name = %s', (name,))
+        name_exists = cursor.fetchone()
+
+        if name_exists:
+            person_id = name_exists[0]
+        else:
+            cursor.execute('insert into person (name) VALUES (%s)', (name,))
+            person_id = cursor.lastrowid
+        cursor.execute('insert into photo (person_id, photo, file_name) VALUES (%s, %s, %s)', (person_id, photo_data, file.filename))
         conn.commit()
         cursor.close()
         conn.close()
 
-        # return success response
-        return {"message": 'File uploaded successfully'}
-    
+        return redirect(url_for('index'))
+
     except Exception as e:
-        print(f"Error: {e}")  # log the exception for debugging
-        return {"message": 'An error occurred during file upload'}
+        return jsonify({'error': 'An error occurred during file upload'}), 500
 
 if __name__ == '__main__':
     app.run(debug=True, port=3001)  # run on port 3001
