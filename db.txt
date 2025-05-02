@@ -1,0 +1,12 @@
+create table person (
+    id int auto_increment primary key,
+    name VARCHAR(30) not null
+);
+
+create table photo (
+    id int auto_increment primary key,
+    person_id int,
+    photo mediumblob not null,
+    file_name varchar(30),
+    foreign key (person_id) references person(id)
+);
