@@ -34,6 +34,7 @@ def index():
 @app.route('/search')
 def search():
     name = request.args.get('name')
+    print(name)
     
     try:
         conn = get_db_connection()
