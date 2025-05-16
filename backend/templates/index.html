@@ -4,31 +4,98 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Upload Photo</title>
-</head>
+    </head>
 <body>
     <h1>Upload Photo backend</h1>
-    <form action="/upload" method="post" enctype="multipart/form-data">
-        <label for="name">Name:</label>
-        <input type="text" id="name" name="name" required><br><br>
+    {% if 'log_in' in session and session['log_in'] %}
+        <form action="/upload" method="post" enctype="multipart/form-data">
+            <label for="name">Name:</label>
+            <input type="text" id="name" name="name" required><br><br>
+            
+            <label for="file">Choose file:</label>
+            <input type="file" id="file" name="file" required><br><br>
+            
+            <input type="submit" value="Upload">
+        </form>
         
-        <label for="file">Choose file:</label>
-        <input type="file" id="file" name="file" required><br><br>
+        <h2>Search Photos</h2>
+        <form action="/search" method="get">
+            <label for="search_name">Search by name:</label>
+            <input type="text" id="search_name" name="name" required>
+            <input type="submit" value="Search">
+        </form>
+
+        <div id="warning-message" style="color: red; display: none;"></div>
+
+        <script>
+            let logoutTimer;
+            let warningTimer;
+            let countdownInterval;
+            let totalInactivityTime = 10;
+            let warningCountdown = 5;
         
-        <input type="submit" value="Upload">
-    </form>
-    
-    <h2>Search Photos</h2>
-    <form action="/search" method="get">
-        <label for="search_name">Search by name:</label>
-        <input type="text" id="search_name" name="name" required>
-        <input type="submit" value="Search">
-    </form>
+            function resetTimers() {
+                clearTimeout(logoutTimer);
+                clearTimeout(warningTimer);
+                clearInterval(countdownInterval);
+                document.getElementById("warning-message").style.display = "none";
+                startTimers();
+            }
+        
+            function startTimers() {
+                logoutTimer = setTimeout(logoutUser, totalInactivityTime * 1000);
+                warningTimer = setTimeout(startWarningCountdown, (totalInactivityTime - warningCountdown) * 1000);
+            }
+        
+            function startWarningCountdown() {
+                let remaining = warningCountdown;
+                document.getElementById("warning-message").style.display = "block";
+                document.getElementById("warning-message").innerText = "You are inactive... You will be logged out in " + remaining + " seconds.";
+                countdownInterval = setInterval(() => {
+                    remaining--;
+                    if (remaining > 0) {
+                        document.getElementById("warning-message").innerText =
+                            "You are inactive... You will be logged out in " + remaining + " seconds.";
+                    } else {
+                        clearInterval(countdownInterval);
+                    }
+                }, 1000);
+            }
+        
+            function logoutUser() {
+                window.location.href = "/logout";
+            }
+        
+            window.onload = function () {
+                document.body.addEventListener('mousemove', resetTimers);
+                document.body.addEventListener('keydown', resetTimers);
+                startTimers();
+            }
+        </script>
 
+        {% if message %}
+            <div style="color: red">
+                <p>{{message}}</p>
+            </div>
+        {% endif %}
+    {% else %}
+        <h2>Login</h2>
 
-    {% if message %}
-        <div style="color: red">
-            <p>{{message}}</p>
-        </div>
+        <form method="post">
+            <label for="username">Username:</label>
+            <input type="text" id="username" name="username" required><br><br>
+
+            <label for="password">Password:</label>
+            <input type="password" id="password" name="password" required><br><br>
+
+            <input type="submit" value="Login">
+        </form>
+
+        {% if message %}
+            <div style="color: red">
+                <p>{{message}}</p>
+            </div>
+        {% endif %}
     {% endif %}
 </body>
 </html>

@@ -1,6 +1,7 @@
-from flask import Flask, request, jsonify, render_template, redirect, url_for
+from flask import Flask, request, jsonify, render_template, redirect, url_for, session
 from flask_cors import CORS
 from PIL import Image
+from datetime import timedelta
 import mysql.connector
 import os
 import io
@@ -8,10 +9,18 @@ import base64
 
 app = Flask(__name__) # run the Flask app, create a new Flask web application
 CORS(app) # restricts requests from different domains
+app.secret_key = 'abc'
+app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(seconds=10)
 
 UPLOAD_FOLDER = 'uploads' # save the copy of the upload file to this directory
 if not os.path.exists(UPLOAD_FOLDER):
     os.makedirs(UPLOAD_FOLDER)
+
+
+# refresh session timeout on each request
+@app.before_request
+def make_session_permanent():
+    session.permanent = True
 
 # connect to the MySQL database
 def get_db_connection():
@@ -27,14 +36,29 @@ def get_db_connection():
 def api():
     return {"message": "Hello from Backend!"}
 
-@app.route('/')
+@app.route('/', methods=['GET', 'POST'])
 def index():
+    # session['log_in'] = False
+    if request.method == 'POST':
+        username = request.form['username']
+        password = request.form['password']
+        print(username, password)
+        if username == 'admin' and password == 'a':
+            session['log_in'] = True
+            return redirect(url_for('index'))
+        else:
+            return render_template('index.html', message="Invalid username or password")
+    print("???????")
     return render_template('index.html')
+
+@app.route('/logout')
+def logout():
+    session.clear()
+    return redirect(url_for('index'))
 
 @app.route('/search')
 def search():
     name = request.args.get('name')
-    print(name)
     
     try:
         conn = get_db_connection()
