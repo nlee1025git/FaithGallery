@@ -3,21 +3,15 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Photos</title>
+    <title>All Photos</title>
 </head>
 <body>
-    <h1>{{name}}'s Photos</h1>
+    <h1>All Photos of {{name}}</h1>
 
     {% for img in images %}
         <img src="data:image/{{ img.type }};base64,{{ img.data }}" alt="Photo" width="400"/>
     {% endfor %}
     <br><br>
-
-    <form action="/show_photos" method="get">
-        <input type="hidden" id="name" name="name" value="{{name}}">
-        <button>Show All Photos</button>
-    </form>
-    <br>
 
     <a href="/">Back to Main</a>
 </body>

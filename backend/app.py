@@ -20,7 +20,9 @@ if not os.path.exists(UPLOAD_FOLDER):
 # refresh session timeout on each request
 @app.before_request
 def make_session_permanent():
-    session.permanent = True
+    if session.get('log_in'):
+        session.permanent = True
+        session.modified = True
 
 # connect to the MySQL database
 def get_db_connection():
@@ -55,6 +57,41 @@ def index():
 def logout():
     session.clear()
     return redirect(url_for('index'))
+
+@app.route('/show_photos')
+def show_all_photos():
+    name = request.args.get('name')
+    
+    try:
+        conn = get_db_connection()
+        cursor = conn.cursor()
+
+        cursor.execute('select * from person where name = %s', (name,))
+        name_exists = cursor.fetchone()
+
+        if name_exists:
+            cursor.execute('select * from photo where person_id = %s', (name_exists[0],))
+            photos = cursor.fetchall()
+            
+            image_data = []
+            for photo in photos[::-1]:
+                binary_data = photo[2]
+                try:
+                    image = Image.open(io.BytesIO(binary_data))
+                    image_format = image.format.lower()  # file extension 
+                    encoded_img = base64.b64encode(binary_data).decode('utf-8')
+                    image_data.append({'type': image_format, 'data': encoded_img})
+                except Exception as e:
+                    return jsonify({'error': 'An error occurred during file open'}), 500
+
+            cursor.close()
+            conn.close()
+
+            return render_template('photos.html', images=image_data, name=name)
+        else:
+            return render_template('index.html', message=f'Name: {name} not found.')
+    except Exception as e:
+        return jsonify({'Error': 'An error occurred during file open'}), 500
 
 @app.route('/search')
 def search():
