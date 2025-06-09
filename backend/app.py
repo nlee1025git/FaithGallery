@@ -58,6 +58,35 @@ def logout():
     session.clear()
     return redirect(url_for('index'))
 
+@app.route('/sign_up')
+def sign_up():
+    return render_template('sign_up.html')
+
+@app.route('/create_account', methods=['get', 'post'])
+def create_account():
+    username = request.form['username']
+    password = request.form['password']
+    print(username, password)
+
+    conn = get_db_connection()
+    cursor = conn.cursor()
+
+    cursor.execute('select * from users where username = %s', (username,))
+    user = cursor.fetchone()
+    print(user)
+
+    if user:
+        conn.close()
+        return render_template('index.html', message="Username already exists.")
+    
+    cursor.execute('insert into users (username, password) values (%s, %s)', (username, password))
+    conn.commit()
+    conn.close()
+
+    # return redirect(url_for('index'))
+    # return redirect(url_for('index'), message="Account created successfully.")
+    return render_template('index.html', message="Account created successfully.")
+
 @app.route('/show_photos')
 def show_all_photos():
     name = request.args.get('name')
@@ -161,6 +190,7 @@ def upload_photo():
         else:
             cursor.execute('insert into person (name) VALUES (%s)', (name,))
             person_id = cursor.lastrowid
+
         cursor.execute('insert into photo (person_id, photo, file_name) VALUES (%s, %s, %s)', (person_id, photo_data, file.filename))
         conn.commit()
         cursor.close()
