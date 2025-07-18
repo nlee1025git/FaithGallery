@@ -3,22 +3,24 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+    <title>Sign-Up</title>
     <link  type = "text/css" rel ="stylesheet" href = "{{url_for('static', filename = 'styles.css')}}" >
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&family=Open+Sans:wght@400;600&display=swap" rel="stylesheet">
     <script src="https://cdn.tailwindcss.com"></script>
 </head>
 <body>
+    <div class="container m-auto">
     <h2>Sign Up</h2>
 
-    <form action="/create_account" method="post">
-        <label for="username">Username:</label>
-        <input type="text" id="username" name="username" required><br><br>
+    <form action="/create_account" method="post" class="space-y-4">
+        <label for="username" class="block text-sm font-medium text-gray-700">Username:</label>
+        <input type="text" id="username" name="username" required class="mt-1 block w-full p-2 border border-gray-300 rounded-md">
 
-        <label for="password">Password:</label>
-        <input type="password" id="password" name="password" required><br><br>
+        <label for="password" class="block text-sm font-medium text-gray-700">Password:</label>
+        <input type="password" id="password" name="password" required class="mt-1 block w-full p-2 border border-gray-300 rounded-md">
 
-        <input type="submit" value="Sign Up">
-    </form><br>
+        <input type="submit" value="Sign Up" class="btn w-full bg-green-600 text-white p-2 rounded-md hover:bg-green-700">
+    </form>
+    </div>
 </body>
 </html>
