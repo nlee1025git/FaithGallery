@@ -45,11 +45,20 @@ def index():
         username = request.form['username']
         password = request.form['password']
         print(username, password)
-        if username == 'admin' and password == 'a':
-            session['log_in'] = True
-            return redirect(url_for('index'))
-        else:
+
+        try:
+            conn = get_db_connection()
+            cursor = conn.cursor()
+
+            cursor.execute('select * from users')
+            users = cursor.fetchall()
+            for user in users:
+                if username == user[1] and password == user[2]:
+                    session['log_in'] = True
+                    return redirect(url_for('index'))
             return render_template('index.html', message="Invalid username or password")
+        except Exception as e:
+            return jsonify({'Error': 'An error occurred during file open'}), 500
     print("???????")
     return render_template('index.html')
 
@@ -125,6 +134,7 @@ def show_all_photos():
 @app.route('/search')
 def search():
     name = request.args.get('name')
+    print(name)
     
     try:
         conn = get_db_connection()
@@ -164,6 +174,8 @@ def upload_photo():
             return jsonify({'error': 'No file part'}), 400
         file = request.files['file']
         name = request.form['name']
+        visibility = request.form['visibility']
+        print("::::::::::::::::::::::?", visibility)
 
         if not file or not name:
             return jsonify({'error': 'Missing file or name'}), 400
