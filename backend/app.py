@@ -1,10 +1,10 @@
 from flask import Flask, request, jsonify, render_template, redirect, url_for, session
 from flask_cors import CORS
 from PIL import Image
-from datetime import timedelta
+from datetime improt timedelta
 import mysql.connector
 import os
-import oi
+import io
 import base64
 
 app = Flask(__name__) # run the Flask app, create a new Flask web application
