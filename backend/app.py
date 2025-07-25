@@ -4,7 +4,7 @@ from PIL import Image
 from datetime import timedelta
 import mysql.connector
 import os
-import io
+import oi
 import base64
 
 app = Flask(__name__) # run the Flask app, create a new Flask web application
