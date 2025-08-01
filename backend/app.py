@@ -44,7 +44,6 @@ def index():
     if request.method == 'POST':
         username = request.form['username']
         password = request.form['password']
-        print(username, password)
 
         try:
             conn = get_db_connection()
@@ -59,7 +58,6 @@ def index():
             return render_template('index.html', message="Invalid username or password")
         except Exception as e:
             return jsonify({'Error': 'An error occurred during file open'}), 500
-    print("???????")
     return render_template('index.html')
 
 @app.route('/logout')
@@ -94,6 +92,7 @@ def create_account():
 
     # return redirect(url_for('index'))
     # return redirect(url_for('index'), message="Account created successfully.")
+    return redirect(url_for('index', message='Account created successfully.'))
     return render_template('index.html', message="Account created successfully.")
 
 @app.route('/show_photos')
@@ -175,7 +174,6 @@ def upload_photo():
         file = request.files['file']
         name = request.form['name']
         visibility = request.form['visibility']
-        print("::::::::::::::::::::::?", visibility)
 
         if not file or not name:
             return jsonify({'error': 'Missing file or name'}), 400
