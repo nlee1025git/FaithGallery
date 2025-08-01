@@ -90,10 +90,7 @@ def create_account():
     conn.commit()
     conn.close()
 
-    # return redirect(url_for('index'))
-    # return redirect(url_for('index'), message="Account created successfully.")
     return redirect(url_for('index', message='Account created successfully.'))
-    return render_template('index.html', message="Account created successfully.")
 
 @app.route('/show_photos')
 def show_all_photos():
