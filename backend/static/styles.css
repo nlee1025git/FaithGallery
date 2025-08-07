@@ -21,6 +21,22 @@ header{
     font-family: 'Inter', sans-serif;
     font-size: xx-large;
 }
+    .navbar{
+                position:fixed;
+        top: 0;
+        width:100%;
+        float:left;
+  display: block;
+  justify-content: space-between;
+  padding: 12px 16px;
+
+    }
+
+    .navbar a{
+        float: left;
+        display: block;
+        padding: 14px 16px;
+    }
         .container {
             backdrop-filter: blur(10px);
             background: rgba(255, 255, 255, 0.1);
