@@ -140,19 +140,28 @@ def search():
         name_exists = cursor.fetchone()
 
         if name_exists:
-            cursor.execute('select * from photo where person_id = %s', (name_exists[0],))
+            person_id = name_exists[0]
+
+            cursor.execute('select * from photo where person_id = %s and visibility = %s order by id desc limit 3', (person_id, 'public'))
             photos = cursor.fetchall()
             
+            if not photos:
+                cursor.close()
+                conn.close()
+                return render_template('index.html', message=f'No public photo(s) found for "{name}".')
+
             image_data = []
-            for photo in photos[-1: -4: -1]:
+            for photo in photos:
                 binary_data = photo[2]
+
                 try:
                     image = Image.open(io.BytesIO(binary_data))
-                    image_format = image.format.lower()  # file extension 
+                    image_format = image.format.lower()
                     encoded_img = base64.b64encode(binary_data).decode('utf-8')
                     image_data.append({'type': image_format, 'data': encoded_img})
                 except Exception as e:
-                    return jsonify({'error': 'An error occurred during file open'}), 500
+                    print("Error opening image:", e)
+                    return jsonify({'error': 'An error occurred while opening an image.'}), 500
 
             cursor.close()
             conn.close()
@@ -160,8 +169,10 @@ def search():
             return render_template('search.html', images=image_data, name=name)
         else:
             return render_template('index.html', message=f'Name: {name} not found.')
+
     except Exception as e:
-        return jsonify({'Error': 'An error occurred during file open'}), 500
+        print("Search error:", e)
+        return jsonify({'Error': 'An error occurred during search'}), 500
 
 @app.route('/upload', methods=['POST'])
 def upload_photo():
