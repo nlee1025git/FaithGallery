@@ -104,7 +104,7 @@ def show_all_photos():
         name_exists = cursor.fetchone()
 
         if name_exists:
-            cursor.execute('select * from photo where person_id = %s', (name_exists[0],))
+            cursor.execute('select * from photo where person_id = %s and visibility = %s order by id desc', (name_exists[0], 'public'))
             photos = cursor.fetchall()
             
             image_data = []
