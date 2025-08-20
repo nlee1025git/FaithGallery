@@ -11,10 +11,12 @@
 </head>
 <body>
     <nav class= "navbar">
-        <a href="/">Home</a>
         {% if 'log_in' in session and session['log_in'] %}
+        <a href="/">Home</a>
             <a href="/logout">Logout</a>
-        {% endif}
+        {% else %}
+        <a href="/">Home</a>
+        {% endif %}
     </nav>
     <header class="">
         <h1>Snap Your Moments</h1>
