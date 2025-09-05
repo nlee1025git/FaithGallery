@@ -117,7 +117,7 @@ def show_all_photos():
                     encoded_img = base64.b64encode(binary_data).decode('utf-8')
                     image_data.append({'type': image_format, 'data': encoded_img})
                 except Exception as e:
-                    image_data.append({'type': image_format, 'data': encoded_img})
+                    image_data.append({'type': 'error', 'data': None, 'error': 'Corrupted image'})
 
             cursor.close()
             conn.close()
