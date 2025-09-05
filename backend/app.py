@@ -7,6 +7,7 @@ import os
 import io
 import base64
 
+
 app = Flask(__name__) # run the Flask app, create a new Flask web application
 CORS(app) # restricts requests from different domains
 app.secret_key = 'abc'
@@ -116,7 +117,7 @@ def show_all_photos():
                     encoded_img = base64.b64encode(binary_data).decode('utf-8')
                     image_data.append({'type': image_format, 'data': encoded_img})
                 except Exception as e:
-                    return jsonify({'error': 'An error occurred during file open'}), 500
+                    image_data.append({'type': image_format, 'data': encoded_img})
 
             cursor.close()
             conn.close()
