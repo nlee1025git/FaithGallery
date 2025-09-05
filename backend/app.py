@@ -11,7 +11,7 @@ import base64
 app = Flask(__name__) # run the Flask app, create a new Flask web application
 CORS(app) # restricts requests from different domains
 app.secret_key = 'abc'
-app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(seconds=300)
+app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(seconds=10)
 
 UPLOAD_FOLDER = 'uploads' # save the copy of the upload file to this directory
 if not os.path.exists(UPLOAD_FOLDER):
@@ -72,22 +72,21 @@ def sign_up():
 
 @app.route('/create_account', methods=['get', 'post'])
 def create_account():
+    name = request.form['name']
     username = request.form['username']
     password = request.form['password']
-    print(username, password)
 
     conn = get_db_connection()
     cursor = conn.cursor()
 
     cursor.execute('select * from users where username = %s', (username,))
     user = cursor.fetchone()
-    print(user)
 
     if user:
         conn.close()
-        return render_template('index.html', message="Username already exists.")
+        return render_template('sign_up.html', message="Username already exists.", name=name, username=username, password=password)
     
-    cursor.execute('insert into users (username, password) values (%s, %s)', (username, password))
+    cursor.execute('insert into users (name, username, password) values (%s, %s, %s)', (name, username, password))
     conn.commit()
     conn.close()
 
@@ -106,6 +105,7 @@ def show_all_photos():
 
         if name_exists:
             cursor.execute('select * from photo where person_id = %s and visibility = %s order by id desc', (name_exists[0], 'public'))
+            # cursor.execute('select * from photo where person_id = %s', (name_exists[0],))
             photos = cursor.fetchall()
             
             image_data = []
@@ -131,18 +131,19 @@ def show_all_photos():
 @app.route('/search')
 def search():
     name = request.args.get('name')
-    print(name)
     
     try:
         conn = get_db_connection()
         cursor = conn.cursor()
 
+        # check if the name exists
         cursor.execute('select * from person where name = %s', (name,))
         name_exists = cursor.fetchone()
 
         if name_exists:
             person_id = name_exists[0]
 
+            # fetch the latest 3 public photos
             cursor.execute('select * from photo where person_id = %s and visibility = %s order by id desc limit 3', (person_id, 'public'))
             photos = cursor.fetchall()
             
@@ -187,10 +188,6 @@ def upload_photo():
         if not file or not name:
             return jsonify({'error': 'Missing file or name'}), 400
 
-        # log the file name and name field for debugging
-        print(f"Received name: {name}")
-        print(f"Received file: {file.filename}")
-
         # connect to the database and insert data
         conn = get_db_connection()
         cursor = conn.cursor()
@@ -210,7 +207,7 @@ def upload_photo():
             cursor.execute('insert into person (name) VALUES (%s)', (name,))
             person_id = cursor.lastrowid
 
-        cursor.execute('insert into photo (person_id, photo, file_name) VALUES (%s, %s, %s)', (person_id, photo_data, file.filename))
+        cursor.execute('insert into photo (person_id, photo, file_name, visibility) VALUES (%s, %s, %s, %s)', (person_id, photo_data, file.filename, visibility))
         conn.commit()
         cursor.close()
         conn.close()
