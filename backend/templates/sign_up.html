@@ -17,14 +17,21 @@
     <h2 class="text-2xl font-semibold text-center mb-6">Sign Up</h2>
 
     <form action="/create_account" method="post" class="space-y-4">
+        <label for="name">Name:</label>
+        <input type="text" id="name" name="name" value="{{name}}" required><br><br>
+
         <label for="username" class="block text-sm font-medium text-gray-700">Username:</label>
-        <input type="text" id="username" name="username" required class="mt-1 block w-full p-2 border border-gray-300 rounded-md">
+        <input type="text" id="username" name="username" value="{{username}}" required class="mt-1 block w-full p-2 border border-gray-300 rounded-md">
 
         <label for="password" class="block text-sm font-medium text-gray-700">Password:</label>
-        <input type="password" id="password" name="password" required class="mt-1 block w-full p-2 border border-gray-300 rounded-md">
+        <input type="password" id="password" name="password" value="{{password}}" required class="mt-1 block w-full p-2 border border-gray-300 rounded-md">
 
         <input type="submit" value="Sign Up" class="btn w-full bg-green-600 text-white p-2 rounded-md hover:bg-green-700">
     </form>
     </div>
+
+    {% if message %}
+        <p style="color: red;">{{ message }}</p>
+    {% endif %}
 </body>
 </html>
