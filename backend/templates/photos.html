@@ -16,11 +16,47 @@
     </nav>
     <h1>All Photos of {{name}}</h1>
 
+    <div class = "slideshow-container">
     {% for img in images %}
+        <div class = "mySlides fade">
+            <div class="numbertext">{{ loop.index }} / {{ images|length }}</div>
         <img src="data:image/{{ img.type }};base64,{{ img.data }}" alt="Photo" width="400"/>
-    {% endfor %}
+        </div>
+        {% endfor %}
+    <a class="prev" onclick="plusSlides(-1)">❮</a>
+    <a class="next" onclick="plusSlides(1)">❯</a>
+    </div>
     <br><br>
 
     <a href="/">Back to Main</a>
+
+
+    <script>
+let slideIndex = 1;
+showSlides(slideIndex);
+
+function plusSlides(n) {
+  showSlides(slideIndex += n);
+}
+
+function currentSlide(n) {
+  showSlides(slideIndex = n);
+}
+
+function showSlides(n) {
+  let i;
+  let slides = document.getElementsByClassName("mySlides");
+  if (n > slides.length) {slideIndex = 1}    
+  if (n < 1) {slideIndex = slides.length}
+  for (i = 0; i < slides.length; i++) {
+    slides[i].style.display = "none";  
+  }
+
+  slides[slideIndex-1].style.display = "block";  
+  dots[slideIndex-1].className += " active";
+}
+</script>
+
+
 </body>
 </html>
