@@ -11,7 +11,7 @@ import base64
 app = Flask(__name__) # run the Flask app, create a new Flask web application
 CORS(app) # restricts requests from different domains
 app.secret_key = 'abc'
-app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(seconds=10)
+app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(seconds=300)
 
 UPLOAD_FOLDER = 'uploads' # save the copy of the upload file to this directory
 if not os.path.exists(UPLOAD_FOLDER):
