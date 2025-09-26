@@ -21,3 +21,5 @@ alter table photo add column visibility varchar(10) default 'public';
 
 alter table users add column name varchar(30) not null;
 update users set name = 'adam' where name is null or name = '';
+
+alter table photo add column description text;
