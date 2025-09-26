@@ -185,6 +185,8 @@ def upload_photo():
         file = request.files['file']
         name = request.form['name']
         visibility = request.form['visibility']
+        description = request.form['description']
+        print(description)
 
         if not file or not name:
             return jsonify({'error': 'Missing file or name'}), 400
@@ -208,7 +210,7 @@ def upload_photo():
             cursor.execute('insert into person (name) VALUES (%s)', (name,))
             person_id = cursor.lastrowid
 
-        cursor.execute('insert into photo (person_id, photo, file_name, visibility) VALUES (%s, %s, %s, %s)', (person_id, photo_data, file.filename, visibility))
+        cursor.execute('insert into photo (person_id, photo, file_name, visibility, description) VALUES (%s, %s, %s, %s, %s)', (person_id, photo_data, file.filename, visibility, description))
         conn.commit()
         cursor.close()
         conn.close()
