@@ -111,13 +111,16 @@ def show_all_photos():
             image_data = []
             for photo in photos[::-1]:
                 binary_data = photo[2]
+                description = photo[5]
+                print(description)
+
                 try:
                     image = Image.open(io.BytesIO(binary_data))
                     image_format = image.format.lower()  # file extension 
                     encoded_img = base64.b64encode(binary_data).decode('utf-8')
-                    image_data.append({'type': image_format, 'data': encoded_img})
+                    image_data.append({'type': image_format, 'data': encoded_img, 'description': description})
                 except Exception as e:
-                    image_data.append({'type': 'error', 'data': None, 'error': 'Corrupted image'})
+                    return jsonify({'error': 'An error occurred during file open'}), 500
 
             cursor.close()
             conn.close()
@@ -126,7 +129,7 @@ def show_all_photos():
         else:
             return render_template('index.html', message=f'Name: {name} not found.')
     except Exception as e:
-        return jsonify({'Error': 'An error occurred during file open1'}), 500
+        return jsonify({'Error': 'An error occurred during file open'}), 500
 
 @app.route('/search')
 def search():

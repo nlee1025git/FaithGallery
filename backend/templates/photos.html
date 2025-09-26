@@ -22,6 +22,7 @@
         <div class = "mySlides fade">
             <div class="numbertext">{{ loop.index }} / {{ images|length }}</div>
         <img src="data:image/{{ img.type }};base64,{{ img.data }}" alt="Photo" width="400" onclick="onClick(this)" class="w3-hover-opacity"/>
+        <div>Description: {{ img.description }}</div>
         </div>
         {% endfor %}
     <a class="prev" onclick="plusSlides(-1)">❮</a>
