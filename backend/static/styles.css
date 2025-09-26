@@ -91,7 +91,7 @@ header{
             width: auto;
             padding: 16px;
             margin-top: -22px;
-            color: white;
+            color: rgb(3, 161, 0);
             font-weight: bold;
             font-size: 18px;
             transition: 0.6s ease;
@@ -123,3 +123,4 @@ header{
             from {opacity: .4} 
             to {opacity: 1}
         }
+

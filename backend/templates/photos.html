@@ -7,6 +7,7 @@
     <link  type = "text/css" rel ="stylesheet" href = "{{url_for('static', filename = 'styles.css')}}" >
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&family=Open+Sans:wght@400;600&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://www.w3schools.com/w3css/5/w3.css">
     <script src="https://cdn.tailwindcss.com"></script>
 </head>
 <body>
@@ -20,13 +21,24 @@
     {% for img in images %}
         <div class = "mySlides fade">
             <div class="numbertext">{{ loop.index }} / {{ images|length }}</div>
-        <img src="data:image/{{ img.type }};base64,{{ img.data }}" alt="Photo" width="400"/>
+        <img src="data:image/{{ img.type }};base64,{{ img.data }}" alt="Photo" width="400" onclick="onClick(this)" class="w3-hover-opacity"/>
         </div>
         {% endfor %}
     <a class="prev" onclick="plusSlides(-1)">❮</a>
     <a class="next" onclick="plusSlides(1)">❯</a>
     </div>
+
+    <div id="modal01" class="w3-modal" onclick="this.style.display='none'">
+  <span class="w3-button w3-hover-red w3-xlarge w3-display-topright">&times;</span>
+  <div class="w3-modal-content w3-animate-zoom">
+    <img id="img01" style="width:100%">
+  </div>
+</div>
+
     <br><br>
+
+    
+
 
     <a href="/">Back to Main</a>
 
@@ -54,6 +66,11 @@ function showSlides(n) {
 
   slides[slideIndex-1].style.display = "block";  
   dots[slideIndex-1].className += " active";
+}
+
+function onClick(element) {
+  document.getElementById("img01").src = element.src;
+  document.getElementById("modal01").style.display = "block";
 }
 </script>
 
