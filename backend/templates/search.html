@@ -18,6 +18,7 @@
 
     {% for img in images %}
         <img src="data:image/{{ img.type }};base64,{{ img.data }}" alt="Photo" width="400"/>
+        <div>Description: {{ img.description }}</div>
     {% endfor %}
     <br><br>
 

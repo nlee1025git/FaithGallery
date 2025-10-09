@@ -158,12 +158,13 @@ def search():
             image_data = []
             for photo in photos:
                 binary_data = photo[2]
+                description = photo[5]
 
                 try:
                     image = Image.open(io.BytesIO(binary_data))
                     image_format = image.format.lower()
                     encoded_img = base64.b64encode(binary_data).decode('utf-8')
-                    image_data.append({'type': image_format, 'data': encoded_img})
+                    image_data.append({'type': image_format, 'data': encoded_img, 'description': description})
                 except Exception as e:
                     #print("Error opening image:", e)
                     #return jsonify({'error': 'An error occurred while opening an image.'}), 500
