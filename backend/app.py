@@ -1,7 +1,11 @@
+from email import message
+import json
+from tabnanny import check
 from flask import Flask, request, jsonify, render_template, redirect, url_for, session
 from flask_cors import CORS
 from PIL import Image
 from datetime import timedelta
+from werkzeug.security import generate_password_hash, check_password_hash
 import mysql.connector
 import os
 import io
@@ -50,15 +54,20 @@ def index():
             conn = get_db_connection()
             cursor = conn.cursor()
 
-            cursor.execute('select * from users')
-            users = cursor.fetchall()
-            for user in users:
-                if username == user[1] and password == user[2]:
-                    session['log_in'] = True
-                    return redirect(url_for('index'))
-            return render_template('index.html', message="Invalid username or password")
+            cursor.execute('select * from users where username = %s', (username,))
+            user = cursor.fetchone()
+
+            if user and check_password_hash(user[2], password):
+                session.clear()
+                session['log_in'] = True
+                return redirect(url_for('index'))
+            else:
+                return render_template('index.html', message="Invalid username or password.")
         except Exception as e:
             return jsonify({'Error': 'An error occurred during file open'}), 500
+        finally:
+            cursor.close()
+            conn.close()
     return render_template('index.html')
 
 @app.route('/logout')
@@ -70,27 +79,40 @@ def logout():
 def sign_up():
     return render_template('sign_up.html')
 
-@app.route('/create_account', methods=['get', 'post'])
+@app.route('/create_account', methods=['post'])
 def create_account():
     name = request.form['name']
     username = request.form['username']
     password = request.form['password']
 
-    conn = get_db_connection()
-    cursor = conn.cursor()
+    try:
+        conn = get_db_connection()
+        cursor = conn.cursor()
 
-    cursor.execute('select * from users where username = %s', (username,))
-    user = cursor.fetchone()
+        cursor.execute('select * from users where username = %s', (username,))
+        user = cursor.fetchone()
 
-    if user:
-        conn.close()
-        return render_template('sign_up.html', message="Username already exists.", name=name, username=username, password=password)
+        if user:
+            conn.close()
+            return render_template(
+                'sign_up.html',
+                message="Username already exists.",
+                name=name,
+                username=username
+            )
     
-    cursor.execute('insert into users (name, username, password) values (%s, %s, %s)', (name, username, password))
-    conn.commit()
-    conn.close()
+        hashed_pw = generate_password_hash(password)
 
-    return redirect(url_for('index', message='Account created successfully.'))
+        cursor.execute(
+            'insert into users (name, username, password) values (%s, %s, %s)',
+            (name, username, hashed_pw)
+        )
+        conn.commit()
+        conn.close()
+
+        return redirect(url_for('index', message='Account created successfully.'))
+    except Exception as e:
+        return jsonify({'Error': 'Error creating account.'}), 500
 
 @app.route('/show_photos')
 def show_all_photos():
